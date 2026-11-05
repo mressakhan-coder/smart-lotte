@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="القرعة الذكية">
+<meta name="theme-color" content="#0B1220">
+<title>القرعة الذكية</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%230B1220'/><text x='90' y='115' font-size='90' text-anchor='middle' dominant-baseline='middle'>🎲</text></svg>">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--bg:#0B1220;--card:#1A2740;--card2:#0F1A2E;--primary:#2E6BFF;--gold:#FFC542;--text:#FFF;--sub:#A8B5CC;--line:rgba(255,255,255,.08);--danger:#FF5A5A;--r:20px;--st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px)}
+body.light{--bg:#EEF3FF;--card:#FFF;--card2:#E1E9FF;--text:#0B1220;--sub:#566;--line:rgba(0,0,0,.08)}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Arabic","Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text);direction:rtl;-webkit-font-smoothing:antialiased;transition:background .3s,color .3s;user-select:none}
+#app{height:100%;display:flex;flex-direction:column;padding-top:var(--st)}
+.header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;min-height:56px;border-bottom:1px solid var(--line);background:var(--bg);flex-shrink:0}
+.header h1{font-size:1.15rem;font-weight:800}
+.header .action{background:var(--card);color:var(--text);border:none;padding:8px 14px;border-radius:12px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit}
+.header .action:active{transform:scale(.95)}
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;padding-bottom:calc(90px + var(--sb))}
+.content.no-tab{padding-bottom:calc(24px + var(--sb))}
+.nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:8px 0 calc(8px + var(--sb));z-index:20}
+.nav button{background:none;border:none;color:var(--sub);font-family:inherit;font-size:.72rem;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 10px;cursor:pointer;border-radius:12px;transition:.2s;min-width:60px}
+.nav button.active{color:var(--gold)}
+.nav button.active .ico{background:var(--gold);color:#000}
+.nav .ico{width:40px;height:28px;display:grid;place-items:center;border-radius:10px;font-size:1.15rem;transition:.2s}
+.stats{display:grid;gap:10px;margin-bottom:14px}
+.stats.two{grid-template-columns:1fr 1fr}
+.stats.three{grid-template-columns:1fr 1fr 1fr}
+.stat{background:var(--card);border-radius:var(--r);padding:14px;border:1px solid var(--line)}
+.stat h3{font-size:1.7rem;font-weight:800;line-height:1;margin:4px 0}
+.stat small{color:var(--sub);font-size:.8rem}
+.stat .i{font-size:1.1rem}
+.section{font-size:1.05rem;font-weight:700;margin:16px 4px 10px}
+.section:first-child{margin-top:0}
+.list-item{background:var(--card);border-radius:16px;padding:14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;border:1px solid var(--line);transition:.15s}
+.list-item:active{transform:scale(.98)}
+.list-item .title{font-weight:700;font-size:.95rem}
+.list-item .meta{color:var(--sub);font-size:.78rem;margin-top:4px;display:flex;gap:14px}
+.list-item .chev{color:var(--gold);font-size:1.2rem}
+.btn{font-family:inherit;font-weight:700;border:none;cursor:pointer;border-radius:16px;padding:14px;font-size:.95rem;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.15s;width:100%;color:var(--text);background:var(--card)}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.4;pointer-events:none}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 6px 18px rgba(46,107,255,.35)}
+.btn-gold{background:var(--gold);color:#000;box-shadow:0 6px 18px rgba(255,197,66,.3)}
+.btn-ghost{background:var(--card2)}
+.btn-danger{background:transparent;color:var(--danger);border:1px solid var(--danger)}
+.row{display:flex;gap:10px;margin:10px 0}
+.row .btn{flex:1}
+.input{font-family:inherit;font-size:1rem;padding:14px;border-radius:14px;background:var(--card);border:1px solid var(--line);color:var(--text);width:100%;text-align:right}
+.input:focus{outline:none;border-color:var(--primary)}
+textarea.input{resize:none;min-height:120px;line-height:1.5}
+.field-row{display:flex;gap:8px;margin-bottom:12px}
+.plus-btn{background:var(--primary);color:#fff;border:none;border-radius:14px;font-size:1.4rem;width:52px;cursor:pointer;font-weight:700;flex-shrink:0}
+.stepper{display:flex;align-items:center;justify-content:space-between;padding:14px;background:var(--card);border-radius:16px;margin-bottom:10px;border:1px solid var(--line)}
+.stepper .label{font-weight:600}
+.stepper .controls{display:flex;align-items:center;gap:12px}
+.stepper button{width:40px;height:40px;border-radius:50%;background:var(--primary);color:#fff;border:none;font-size:1.3rem;font-weight:700;cursor:pointer}
+.stepper button:disabled{opacity:.3;pointer-events:none}
+.stepper .val{font-size:1.25rem;font-weight:800;color:var(--gold);min-width:40px;text-align:center}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px;background:var(--card);border-radius:16px;margin-bottom:10px;border:1px solid var(--line);cursor:pointer}
+.toggle-row .label{font-weight:600}
+.switch{width:50px;height:30px;border-radius:15px;background:rgba(255,255,255,.15);position:relative;transition:.2s;flex-shrink:0}
+body.light .switch{background:rgba(0,0,0,.15)}
+.switch.on{background:var(--primary)}
+.switch::after{content:"";position:absolute;top:3px;right:3px;width:24px;height:24px;background:#fff;border-radius:50%;transition:.25s;box-shadow:0 2px 4px rgba(0,0,0,.2)}
+.switch.on::after{right:23px}
+.rolling{background:var(--card2);border-radius:24px;min-height:180px;display:grid;place-items:center;font-size:2.4rem;font-weight:900;color:var(--gold);padding:20px;text-align:center;line-height:1.2;word-break:break-word;margin:14px 0}
+.rolling.pop{animation:pop .4s cubic-bezier(.68,-.55,.27,1.55)}
+@keyframes pop{0%{transform:scale(.7);opacity:.5}100%{transform:scale(1);opacity:1}}
+.rolling-img{background:var(--card2);border-radius:24px;overflow:hidden;height:240px;display:grid;place-items:center;margin:14px 0}
+.rolling-img img{width:100%;height:100%;object-fit:cover}
+.rolling-img.pop{animation:pop .4s cubic-bezier(.68,-.55,.27,1.55)}
+.winner{background:var(--card);border-radius:14px;padding:12px;display:flex;align-items:center;gap:12px;margin-bottom:8px;animation:slideIn .4s ease-out}
+@keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+.winner .rank{width:36px;height:36px;border-radius:50%;background:var(--gold);color:#000;display:grid;place-items:center;font-weight:800;flex-shrink:0;font-size:.95rem}
+.winner .name{font-weight:700;word-break:break-word;flex:1}
+.winner .date{font-size:.7rem;color:var(--sub);margin-top:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(95px,1fr));gap:8px;margin-bottom:14px}
+.img-cell{position:relative;border-radius:14px;overflow:hidden;aspect-ratio:1;background:var(--card2)}
+.img-cell img{width:100%;height:100%;object-fit:cover;display:block}
+.img-cell .del{position:absolute;top:4px;left:4px;background:rgba(0,0,0,.75);color:#fff;border:none;width:26px;height:26px;border-radius:50%;font-size:.8rem;cursor:pointer;display:grid;place-items:center}
+.img-cell .badge{position:absolute;bottom:4px;right:4px;background:var(--gold);color:#000;padding:2px 8px;border-radius:8px;font-size:.7rem;font-weight:800}
+.empty{text-align:center;padding:40px 20px;color:var(--sub)}
+.empty .big{font-size:3.5rem;margin-bottom:12px;opacity:.7}
+.empty p{font-size:.9rem;line-height:1.6}
+.record{background:var(--card);border-radius:14px;padding:14px;margin-bottom:10px;border:1px solid var(--line)}
+.record .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px}
+.record .top strong{font-size:.95rem;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.record .date{color:var(--sub);font-size:.7rem;flex-shrink:0}
+.record .counts{color:var(--sub);font-size:.8rem;display:flex;gap:12px;margin-bottom:6px}
+.record .summary{color:var(--sub);font-size:.85rem;line-height:1.5;margin-bottom:8px;padding:8px;background:var(--card2);border-radius:10px}
+.record .actions{display:flex;gap:8px;flex-wrap:wrap}
+.record .actions button{font-size:.8rem;padding:8px 12px;border-radius:10px;border:none;font-family:inherit;font-weight:600;cursor:pointer;color:#fff}
+.record .actions .share-btn{background:var(--primary)}
+.record .actions .pdf-btn{background:var(--gold);color:#000}
+.record .actions .del-btn{background:rgba(255,90,90,.15);color:var(--danger);margin-right:auto}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;z-index:50;animation:fade .2s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.modal{background:var(--bg);border-radius:24px 24px 0 0;width:100%;max-width:520px;padding:20px;padding-bottom:calc(20px + var(--sb));animation:slideUp .3s cubic-bezier(.32,.72,0,1)}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal h3{font-size:1.1rem;margin-bottom:14px}
+.modal .hint{color:var(--sub);font-size:.85rem;margin-bottom:10px}
+.seg{display:flex;background:var(--card2);border-radius:12px;padding:4px;gap:4px;margin-bottom:14px}
+.seg button{flex:1;padding:10px;background:none;border:none;color:var(--sub);font-family:inherit;font-weight:600;font-size:.85rem;border-radius:9px;cursor:pointer;transition:.15s}
+.seg button.active{background:var(--primary);color:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.chip{padding:10px 16px;border-radius:12px;background:var(--card2);border:2px solid transparent;cursor:pointer;font-family:inherit;font-weight:600;color:var(--text);font-size:.9rem}
+.chip.active{border-color:var(--gold);color:var(--gold)}
+.toast{position:fixed;bottom:calc(100px + var(--sb));left:50%;transform:translateX(-50%);background:var(--card);color:var(--text);padding:12px 20px;border-radius:14px;font-size:.9rem;font-weight:600;box-shadow:0 8px 32px rgba(0,0,0,.4);z-index:100;animation:toastIn .3s ease-out;border:1px solid var(--line);max-width:90%;text-align:center}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.toast.out{animation:toastOut .3s ease-in forwards}
+@keyframes toastOut{to{opacity:0;transform:translateX(-50%) translateY(20px)}}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:99;overflow:hidden}
+.confetti span{position:absolute;width:10px;height:10px;animation:confettiFall 2.5s linear forwards}
+@keyframes confettiFall{0%{transform:translateY(-20vh) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<input type="file" id="libInput" accept="image/*" multiple style="display:none">
+<input type="file" id="camInput" accept="image/*" capture="environment" style="display:none">
+<div id="modalRoot"></div>
+<div id="confettiRoot"></div>
+<script>
+// ============ Utilities ============
+const $ = (s,c=document)=>c.querySelector(s);
+const $$ = (s,c=document)=>[...c.querySelectorAll(s)];
+const uid = ()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const sleep = ms=>new Promise(r=>setTimeout(r,ms));
+const esc = s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const save = (k,v)=>{try{localStorage.setItem('ld_'+k,JSON.stringify(v));return true}catch(e){toast('⚠️ الذاكرة ممتلئة، احذف بعض الصور');return false}};
+const load = (k,d)=>{try{const v=localStorage.getItem('ld_'+k);return v?JSON.parse(v):d}catch{return d}};
+function shuffle(a){const b=a.slice();for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+
+// ============ Audio ============
+const AudioFX = {
+  ctx:null,
+  init(){if(!this.ctx){try{this.ctx=new(window.AudioContext||window.webkitAudioContext)()}catch{}}return this.ctx},
+  tone(f,d,t='sine',v=.1){if(!state.sound)return;const c=this.init();if(!c)return;try{const o=c.createOscillator(),g=c.createGain();o.frequency.value=f;o.type=t;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+d)}catch{}},
+  tick(){this.tone(900,.04,'square',.04)},
+  winner(){this.tone(523,.12);setTimeout(()=>this.tone(659,.12),100);setTimeout(()=>this.tone(784,.25),200)},
+  complete(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>this.tone(f,.18,'sine',.08),i*90))}
+};
+const haptic = (p=10)=>{if(navigator.vibrate)navigator.vibrate(p)};
+
+// ============ Toast ============
+let toastTimer=null;
+function toast(msg,dur=2200){
+  const old=$('.toast');if(old)old.remove();
+  const el=document.createElement('div');el.className='toast';el.textContent=msg;
+  document.body.appendChild(el);
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),300)},dur);
+}
+
+// ============ Confetti ============
+function confetti(){
+  const root=$('#confettiRoot');
+  const colors=['#FFC542','#2E6BFF','#FF5A5A','#4ADE80','#F472B6','#A78BFA'];
+  for(let i=0;i<50;i++){
+    const s=document.createElement('span');
+    s.style.left=Math.random()*100+'%';
+    s.style.background=colors[Math.floor(Math.random()*colors.length)];
+    s.style.width=(6+Math.random()*8)+'px';
+    s.style.height=(6+Math.random()*8)+'px';
+    s.style.borderRadius=Math.random()>.5?'50%':'2px';
+    s.style.animationDuration=(1.8+Math.random()*1.5)+'s';
+    s.style.animationDelay=(Math.random()*.4)+'s';
+    root.appendChild(s);
+    setTimeout(()=>s.remove(),3500);
+  }
+}
+
+// ============ State ============
+const state = {
+  tab:'names', screen:'home', activeId:null,
+  theme:load('theme','dark'),
+  sound:load('sound',true),
+  nameLists:load('nameLists',[]),
+  numberSets:load('numberSets',[]),
+  imageEntries:load('imageEntries',[]),
+  imageWinners:load('imageWinners',[]),
+  records:load('records',[]),
+  draw:{active:false,rolling:'',rollImage:null,drawn:[],showResult:false,winnersCount:1,preventRepeat:true},
+  modal:null,input:'',tmp:{}
+};
+function persist(){
+  save('theme',state.theme);save('sound',state.sound);
+  save('nameLists',state.nameLists);save('numberSets',state.numberSets);
+  save('imageEntries',state.imageEntries);save('imageWinners',state.imageWinners);
+  save('records',state.records);
+}
+
+// ============ Image compression ============
+function compressImage(file,maxDim=700,quality=.7){
+  return new Promise(resolve=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const img=new Image();
+      img.onload=()=>{
+        const cv=document.createElement('canvas');
+        let{width,height}=img;
+        if(width>maxDim||height>maxDim){
+          if(width>height){height=Math.round(height*maxDim/width);width=maxDim}
+          else{width=Math.round(width*maxDim/height);height=maxDim}
+        }
+        cv.width=width;cv.height=height;
+        cv.getContext('2d').drawImage(img,0,0,width,height);
+        resolve(cv.toDataURL('image/jpeg',quality));
+      };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ============ Share ============
+async function shareText(t){
+  if(navigator.share){try{await navigator.share({text:t})}catch{}}
+  else{await navigator.clipboard.writeText(t);toast('📋 تم النسخ')}
+}
+async function shareImage(dataUrl){
+  try{
+    const blob=await(await fetch(dataUrl)).blob();
+    const file=new File([blob],'winner.jpg',{type:'image/jpeg'});
+    if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],title:'الفائز'});
+    else{const a=document.createElement('a');a.href=dataUrl;a.download='winner.jpg';a.click()}
+  }catch{toast('تعذر المشاركة')}
+}
+function printPDF(title,lines){
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8"><title>${esc(title)}</title><style>body{font-family:system-ui,-apple-system,sans-serif;padding:50px;color:#000;direction:rtl}h1{font-size:26px;margin-bottom:24px;border-bottom:3px solid #FFC542;padding-bottom:12px}li{font-size:16px;margin:12px 0;list-style:none;padding:10px;border-bottom:1px solid #eee}</style></head><body><h1>${esc(title)}</h1><ul>${lines.map(l=>`<li>${esc(l)}</li>`).join('')}</ul></body></html>`);
+  w.document.close();setTimeout(()=>w.print(),400);
+}
+function fmtDate(iso){
+  const d=new Date(iso);
+  return d.toLocaleDateString('ar-EG',{day:'2-digit',month:'short',year:'numeric'})+' • '+d.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});
+}
+
+// ============ Computed ============
+function activeList(){return state.nameLists.find(l=>l.id===state.activeId)}
+function activeSet(){return state.numberSets.find(s=>s.id===state.activeId)}
+function namePool(list){
+  if(!list)return[];
+  const won=new Set(list.winners.map(w=>w.name));
+  return list.participants.map(p=>p.name).filter(n=>!state.draw.preventRepeat||!won.has(n));
+}
+function numberPool(set){
+  if(!set)return[];
+  const won=new Set(set.winners.map(w=>w.value));
+  return set.numbers.filter(n=>!state.draw.preventRepeat||!won.has(n));
+}
+
+// ============ Render ============
+function render(){
+  document.body.classList.toggle('light',state.theme==='light');
+  const app=$('#app');
+  if(state.screen==='home')app.innerHTML=renderHome();
+  else if(state.screen==='list')app.innerHTML=renderList();
+  else if(state.screen==='draw')app.innerHTML=renderDraw();
+  renderModal();
+}
+
+function renderHome(){
+  const titles={names:'قرعة الأسماء',numbers:'قرعة الأرقام',images:'قرعة الصور',history:'السجل والإحصائيات'};
+  const actionBtn=state.tab==='names'?'<button class="action" data-act="newNameList">+ قائمة</button>':
+                  state.tab==='numbers'?'<button class="action" data-act="newNumberSet">+ مجموعة</button>':
+                  state.tab==='images'?'<button class="action" data-act="pickLib">+ صور</button>':
+                  '<button class="action" data-act="settings">⚙️</button>';
+  let body='';
+  if(state.tab==='names'){
+    const total=state.nameLists.reduce((a,l)=>a+l.participants.length,0);
+    body=`<div class="stats two">
+      <div class="stat"><div class="i">📋</div><h3>${state.nameLists.length}</h3><small>قوائم</small></div>
+      <div class="stat"><div class="i">👥</div><h3>${total}</h3><small>مشاركون</small></div>
+    </div>
+    <h2 class="section">قوائم الأسماء</h2>
+    ${state.nameLists.length===0?'<div class="empty"><div class="big">👥</div><p>لا توجد قوائم بعد</p><p style="font-size:.8rem;margin-top:6px">اضغط + قائمة أعلى الشاشة</p></div>':
+      state.nameLists.map(l=>`<div class="list-item" data-act="openList" data-id="${l.id}">
+        <div><div class="title">${esc(l.title)}</div>
+        <div class="meta"><span>👥 ${l.participants.length}</span><span>🏆 ${l.winners.length}</span></div></div>
+        <span class="chev">‹</span></div>`).join('')}`;
+  } else if(state.tab==='numbers'){
+    const tw=state.numberSets.reduce((a,s)=>a+s.winners.length,0);
+    body=`<div class="stats two">
+      <div class="stat"><div class="i">📦</div><h3>${state.numberSets.length}</h3><small>مجموعات</small></div>
+      <div class="stat"><div class="i">🏆</div><h3>${tw}</h3><small>فائزون</small></div>
+    </div>
+    <h2 class="section">قرعة الأرقام</h2>
+    ${state.numberSets.length===0?'<div class="empty"><div class="big">🔢</div><p>لا توجد مجموعات أرقام</p><p style="font-size:.8rem;margin-top:6px">اضغط + مجموعة</p></div>':
+      state.numberSets.map(s=>`<div class="list-item" data-act="openSet" data-id="${s.id}">
+        <div><div class="title">${esc(s.title)}</div>
+        <div class="meta"><span>${s.numbers.length} رقم</span><span>🏆 ${s.winners.length} فائز</span></div></div>
+        <span class="chev">‹</span></div>`).join('')}`;
+  } else if(state.tab==='images'){
+    body=`<div class="stats two">
+      <div class="stat"><div class="i">🖼️</div><h3>${state.imageEntries.length}</h3><small>صور</small></div>
+      <div class="stat"><div class="i">🏆</div><h3>${state.imageWinners.length}</h3><small>فائزون</small></div>
+    </div>
+    <div class="row">
+      <button class="btn btn-primary" data-act="pickLib">🖼️ المكتبة</button>
+      <button class="btn btn-gold" data-act="pickCam">📷 كاميرا</button>
+    </div>
+    ${state.imageEntries.length===0?'<div class="empty"><div class="big">🖼️</div><p>لا توجد صور</p></div>':
+      `<div class="grid">${state.imageEntries.map(img=>`<div class="img-cell">
+        <img src="${img.dataUrl}" alt="${esc(img.title)}">
+        <button class="del" data-act="delImage" data-id="${img.id}">✕</button></div>`).join('')}</div>
+      <button class="btn btn-gold" data-act="openImagesDraw" style="margin-top:8px">✨ بدء القرعة</button>`}
+    ${state.imageWinners.length?`<h2 class="section">🏆 الفائزون السابقون</h2>
+      <div class="grid">${state.imageWinners.slice(0,12).map(w=>`<div class="img-cell">
+        <img src="${w.dataUrl}" alt="${esc(w.title)}">
+        <div class="badge">#${w.rank}</div></div>`).join('')}</div>`:''}`;
+  } else if(state.tab==='history'){
+    const tp=state.records.reduce((a,r)=>a+r.participantsCount,0);
+    const tw=state.records.reduce((a,r)=>a+r.winnersCount,0);
+    body=`<div class="stats three">
+      <div class="stat"><h3>${state.records.length}</h3><small>قرعات</small></div>
+      <div class="stat"><h3>${tp}</h3><small>مشاركون</small></div>
+      <div class="stat"><h3>${tw}</h3><small>فائزون</small></div>
+    </div>
+    <h2 class="section">📅 سجل القرعات</h2>
+    ${state.records.length===0?'<div class="empty"><div class="big">🕐</div><p>لا يوجد سجل بعد</p></div>':
+      state.records.map(r=>`<div class="record">
+        <div class="top"><strong>${esc(r.title)}</strong><span class="date">${fmtDate(r.date)}</span></div>
+        <div class="counts"><span>👥 ${r.participantsCount}</span><span>🏆 ${r.winnersCount}</span></div>
+        <div class="summary">${esc(r.winnersSummary)}</div>
+        <div class="actions">
+          <button class="share-btn" data-act="shareRecord" data-id="${r.id}">📤 مشاركة</button>
+          <button class="pdf-btn" data-act="pdfRecord" data-id="${r.id}">🖨 PDF</button>
+          <button class="del-btn" data-act="delRecord" data-id="${r.id}">🗑 حذف</button>
+        </div></div>`).join('')}
+    <h2 class="section">⚙️ الإعدادات</h2>
+    <div class="toggle-row" data-act="toggleTheme"><span class="label">🌙 الوضع الداكن</span><div class="switch ${state.theme==='dark'?'on':''}"></div></div>
+    <div class="toggle-row" data-act="toggleSound"><span class="label">🔊 المؤثرات الصوتية</span><div class="switch ${state.sound?'on':''}"></div></div>`;
+  }
+  return `<header class="header"><h1>${titles[state.tab]}</h1>${actionBtn}</header>
+  <main class="content">${body}</main>
+  <nav class="nav">
+    <button class="${state.tab==='names'?'active':''}" data-act="tab" data-tab="names"><span class="ico">👥</span>الأسماء</button>
+    <button class="${state.tab==='numbers'?'active':''}" data-act="tab" data-tab="numbers"><span class="ico">🔢</span>الأرقام</button>
+    <button class="${state.tab==='images'?'active':''}" data-act="tab" data-tab="images"><span class="ico">🖼️</span>الصور</button>
+    <button class="${state.tab==='history'?'active':''}" data-act="tab" data-tab="history"><span class="ico">🕐</span>السجل</button>
+  </nav>`;
+}
+
+function renderList(){
+  const list=activeList(),set=activeSet();
+  if(list)return renderNameList(list);
+  if(set)return renderNumberSet(set);
+  return '<div class="empty"><p>خطأ</p></div>';
+}
+
+function renderNameList(list){
+  const pool=namePool(list);
+  const maxW=Math.max(1,pool.length);
+  return `<header class="header">
+    <button class="action" data-act="backHome">← رجوع</button>
+    <h1>${esc(list.title)}</h1>
+    <button class="action" data-act="delNameList" data-id="${list.id}">🗑</button>
+  </header>
+  <main class="content no-tab">
+    <div class="field-row">
+      <input class="input" id="nameInput" placeholder="اسم جديد" data-act="noop">
+      <button class="plus-btn" data-act="addName">+</button>
+    </div>
+    <button class="btn btn-ghost" data-act="openBulkNames" style="margin-bottom:12px">📝 إضافة دفعة أسماء</button>
+
+    <h2 class="section">المشاركون (${list.participants.length})</h2>
+    ${list.participants.length===0?'<div class="empty"><p>أضف أسماء للمشاركة</p></div>':
+      list.participants.map(p=>`<div class="list-item">
+        <span>${esc(p.name)}</span>
+        <button style="background:none;border:none;color:var(--danger);font-size:1.1rem;cursor:pointer" data-act="delName" data-id="${p.id}">✕</button>
+      </div>`).join('')}
+
+    <h2 class="section">🎲 إعدادات السحب</h2>
+    <div class="stepper">
+      <span class="label">عدد الفائزين</span>
+      <div class="controls">
+        <button data-act="decWinners" data-max="${maxW}" ${state.draw.winnersCount<=1?'disabled':''}>−</button>
+        <span class="val">${state.draw.winnersCount}</span>
+        <button data-act="incWinners" data-max="${maxW}" ${state.draw.winnersCount>=maxW?'disabled':''}>+</button>
+      </div>
+    </div>
+    <div class="toggle-row" data-act="togglePreventRepeat">
+      <span class="label">منع تكرار الفوز</span>
+      <div class="switch ${state.draw.preventRepeat?'on':''}"></div>
+    </div>
+    <p style="color:var(--sub);font-size:.8rem;margin:8px 4px">المؤهلون للسحب: ${pool.length}</p>
+
+    <div class="rolling ${state.draw.showResult?'pop':''}">
+      ${state.draw.active?esc(state.draw.rolling||'…'):(state.draw.showResult&&state.draw.drawn.length?esc(state.draw.drawn[state.draw.drawn.length-1]):'★')}
+    </div>
+
+    ${state.draw.showResult&&state.draw.drawn.length?renderWinnersBlock('name',list,state.draw.drawn):''}
+
+    <button class="btn btn-gold" style="margin-top:14px" data-act="drawNames" ${state.draw.active||pool.length===0?'disabled':''}>
+      ${state.draw.active?'⏳ جارٍ السحب…':'✨ ابدأ القرعة'}
+    </button>
+
+    ${list.winners.length?`<h2 class="section">🏆 كل الفائزين (${list.winners.length})</h2>
+      ${list.winners.slice().sort((a,b)=>a.rank-b.rank).map(w=>`<div class="winner">
+        <div class="rank">${w.rank}</div>
+        <div class="name">${esc(w.name)}<div class="date">${fmtDate(w.wonAt)}</div></div>
+      </div>`).join('')}
+      <div class="row">
+        <button class="btn btn-primary" data-act="shareAllNameWinners" data-id="${list.id}">📤 مشاركة الكل</button>
+        <button class="btn btn-ghost" data-act="pdfAllNameWinners" data-id="${list.id}">🖨 PDF</button>
+      </div>
+      <button class="btn btn-danger" style="margin-top:10px" data-act="clearNameWinners" data-id="${list.id}">مسح قائمة الفائزين</button>`:''}
+  </main>`;
+}
+
+function renderNumberSet(set){
+  const pool=numberPool(set);
+  const maxW=Math.max(1,pool.length);
+  return `<header class="header">
+    <button class="action" data-act="backHome">← رجوع</button>
+    <h1>${esc(set.title)}</h1>
+    <button class="action" data-act="delNumberSet" data-id="${set.id}">🗑</button>
+  </header>
+  <main class="content no-tab">
+    <div class="stats two">
+      <div class="stat"><div class="i">🔢</div><h3>${set.numbers.length}</h3><small>أرقام</small></div>
+      <div class="stat"><div class="i">🎯</div><h3>${pool.length}</h3><small>متبقية</small></div>
+    </div>
+
+    <div class="stepper">
+      <span class="label">عدد الفائزين</span>
+      <div class="controls">
+        <button data-act="decWinners" data-max="${maxW}" ${state.draw.winnersCount<=1?'disabled':''}>−</button>
+        <span class="val">${state.draw.winnersCount}</span>
+        <button data-act="incWinners" data-max="${maxW}" ${state.draw.winnersCount>=maxW?'disabled':''}>+</button>
+      </div>
+    </div>
+    <div class="toggle-row" data-act="togglePreventRepeat">
+      <span class="label">منع تكرار الفوز</span>
+      <div class="switch ${state.draw.preventRepeat?'on':''}"></div>
+    </div>
+
+    <div class="rolling ${state.draw.showResult?'pop':''}">
+      ${state.draw.active?esc(state.draw.rolling||'…'):(state.draw.showResult&&state.draw.drawn.length?esc(state.draw.drawn[state.draw.drawn.length-1]):'🎯')}
+    </div>
+
+    ${state.draw.showResult&&state.draw.drawn.length?renderWinnersBlock('number',set,state.draw.drawn):''}
+
+    <button class="btn btn-gold" style="margin-top:14px" data-act="drawNumbers" ${state.draw.active||pool.length===0?'disabled':''}>
+      ${state.draw.active?'⏳ جارٍ السحب…':'✨ ابدأ السحب'}
+    </button>
+
+    ${set.winners.length?`<h2 class="section">🏆 كل الفائزين (${set.winners.length})</h2>
+      ${set.winners.slice().sort((a,b)=>a.rank-b.rank).map(w=>`<div class="winner">
+        <div class="rank">${w.rank}</div>
+        <div class="name" style="color:var(--gold);font-size:1.1rem">${w.value}<div class="date">${fmtDate(w.wonAt)}</div></div>
+      </div>`).join('')}
+      <div class="row">
+        <button class="btn btn-primary" data-act="shareAllNumberWinners" data-id="${set.id}">📤 مشاركة</button>
+        <button class="btn btn-ghost" data-act="pdfAllNumberWinners" data-id="${set.id}">🖨 PDF</button>
+      </div>
+      <button class="btn btn-danger" style="margin-top:10px" data-act="clearNumberWinners" data-id="${set.id}">مسح الفائزين</button>`:''}
+  </main>`;
+}
+
+function renderWinnersBlock(type,obj,drawn){
+  return `<h2 class="section">🏆 الفائزون في هذه القرعة</h2>
+    ${drawn.map((n,i)=>`<div class="winner">
+      <div class="rank">${i+1}</div>
+      <div class="name" ${type==='number'?'style="color:var(--gold);font-size:1.15rem"':''}>${esc(n)}</div>
+    </div>`).join('')}
+    <div class="row">
+      <button class="btn btn-primary" data-act="shareCurrentDraw" data-type="${type}" data-id="${obj.id}">📤 مشاركة</button>
+      <button class="btn btn-ghost" data-act="pdfCurrentDraw" data-type="${type}" data-id="${obj.id}">🖨 PDF</button>
+    </div>`;
+}
+
+function renderDraw(){
+  const entries=state.imageEntries;
+  const maxW=Math.max(1,entries.length);
+  return `<header class="header">
+    <button class="action" data-act="backHome">← رجوع</button>
+    <h1>🎲 قرعة الصور</h1>
+    <span style="width:60px"></span>
+  </header>
+  <main class="content no-tab">
+    <div class="stepper">
+      <span class="label">عدد الفائزين</span>
+      <div class="controls">
+        <button data-act="decWinners" data-max="${maxW}" ${state.draw.winnersCount<=1?'disabled':''}>−</button>
+        <span class="val">${state.draw.winnersCount}</span>
+        <button data-act="incWinners" data-max="${maxW}" ${state.draw.winnersCount>=maxW?'disabled':''}>+</button>
+      </div>
+    </div>
+
+    <div class="rolling-img ${state.draw.showResult?'pop':''}">
+      ${state.draw.rollImage?`<img src="${state.draw.rollImage.dataUrl}" alt="">`:'<div style="font-size:3rem;opacity:.5">🖼️</div>'}
+    </div>
+
+    ${state.draw.showResult&&state.draw.drawn.length?`<h2 class="section">🏆 الفائزون</h2>
+      <div class="grid">${state.draw.drawn.map((w,i)=>`<div class="img-cell">
+        <img src="${w.dataUrl}" alt="">
+        <div class="badge">#${i+1}</div></div>`).join('')}</div>
+      ${state.draw.drawn.length===1?`<button class="btn btn-primary" data-act="shareImage" data-idx="0">📤 مشاركة الصورة</button>`:''}`:''}
+
+    <button class="btn btn-gold" style="margin-top:14px" data-act="drawImages" ${state.draw.active||entries.length===0?'disabled':''}>
+      ${state.draw.active?'⏳ جارٍ السحب…':'✨ ابدأ السحب'}
+    </button>
+  </main>`;
+}
+
+// ============ Modal ============
+function renderModal(){
+  const root=$('#modalRoot');
+  if(!state.modal){root.innerHTML='';return}
+  let content='';
+  if(state.modal==='newNameList'){
+    content=`<h3>➕ قائمة أسماء جديدة</h3>
+      <input class="input" id="mInput" placeholder="مثال: مسابقة حفظ القرآن">
+      <div class="row"><button class="btn btn-ghost" data-act="closeModal">إلغاء</button><button class="btn btn-gold" data-act="createNameList">حفظ</button></div>`;
+  } else if(state.modal==='bulkNames'){
+    content=`<h3>📝 إضافة دفعة أسماء</h3>
+      <p class="hint">اسم في كل سطر</p>
+      <textarea class="input" id="mInput" placeholder="أحمد&#10;محمد&#10;خالد"></textarea>
+      <div class="row"><button class="btn btn-ghost" data-act="closeModal">إلغاء</button><button class="btn btn-gold" data-act="addBulkNames">إضافة</button></div>`;
+  } else if(state.modal==='newNumberSet'){
+    const t=state.tmp;
+    content=`<h3>🔢 مجموعة أرقام جديدة</h3>
+      <input class="input" id="mInput" placeholder="اسم المجموعة" value="${esc(t.nsTitle||'قرعة أرقام')}" style="margin-bottom:12px">
+      <div class="seg">
+        <button class="${t.nsMode==='range'?'active':''}" data-act="nsMode" data-mode="range">نطاق</button>
+        <button class="${t.nsMode==='manual'?'active':''}" data-act="nsMode" data-mode="manual">يدوي</button>
+        <button class="${t.nsMode==='preset'?'active':''}" data-act="nsMode" data-mode="preset">جاهز</button>
+      </div>
+      ${t.nsMode==='range'?`<div class="row">
+        <input class="input" id="nsFrom" type="number" placeholder="من" value="${t.nsFrom||1}">
+        <input class="input" id="nsTo" type="number" placeholder="إلى" value="${t.nsTo||100}">
+      </div>`:''}
+      ${t.nsMode==='manual'?`<textarea class="input" id="nsManual" placeholder="1, 2, 3, 5, 10 ..."></textarea>`:''}
+      ${t.nsMode==='preset'?`<div class="chips">
+        ${[10,50,100,1000].map(n=>`<button class="chip ${t.nsPreset===n?'active':''}" data-act="nsPreset" data-n="${n}">1 – ${n}</button>`).join('')}
+      </div>`:''}
+      <div class="row"><button class="btn btn-ghost" data-act="closeModal">إلغاء</button><button class="btn btn-gold" data-act="createNumberSet">حفظ</button></div>`;
+  } else if(state.modal==='settings'){
+    content=`<h3>⚙️ الإعدادات</h3>
+      <div class="toggle-row" data-act="toggleTheme" style="margin-bottom:10px">
+        <span class="label">🌙 الوضع الداكن</span>
+        <div class="switch ${state.theme==='dark'?'on':''}"></div>
+      </div>
+      <div class="toggle-row" data-act="toggleSound">
+        <span class="label">🔊 المؤثرات الصوتية</span>
+        <div class="switch ${state.sound?'on':''}"></div>
+      </div>
+      <button class="btn btn-primary" data-act="closeModal" style="margin-top:14px">تم</button>`;
+  }
+  root.innerHTML=`<div class="modal-overlay" data-act="closeModal"><div class="modal" onclick="event.stopPropagation()">${content}</div></div>`;
+  setTimeout(()=>{const i=$('#mInput');if(i&&!i.value)i.focus()},100);
+}
+
+// ============ Draw functions ============
+async function drawNames(){
+  const list=activeList();
+  if(!list||state.draw.active)return;
+  const pool=namePool(list);
+  const count=Math.min(state.draw.winnersCount,pool.length);
+  if(count<1)return;
+  state.draw.active=true;state.draw.drawn=[];state.draw.showResult=false;
+  haptic(20);render();
+  for(let i=0;i<20;i++){
+    state.draw.rolling=pool[Math.floor(Math.random()*pool.length)];
+    AudioFX.tick();
+    const el=$('.rolling');if(el)el.textContent=state.draw.rolling;
+    await sleep(55);
+  }
+  const picks=shuffle(pool).slice(0,count);
+  for(const name of picks){
+    state.draw.rolling=name;state.draw.drawn.push(name);
+    list.winners.push({name,rank:list.winners.length+1,wonAt:new Date().toISOString()});
+    haptic([30,30,60]);AudioFX.winner();
+    const el=$('.rolling');if(el){el.textContent=name;el.classList.add('pop');setTimeout(()=>el.classList.remove('pop'),400)}
+    await sleep(700);
+  }
+  state.records.unshift({id:uid(),type:'names',title:'قرعة أسماء — '+list.title,participantsCount:list.participants.length,winnersCount:picks.length,winnersSummary:picks.join('، '),date:new Date().toISOString()});
+  state.draw.active=false;state.draw.showResult=true;
+  AudioFX.complete();confetti();
+  persist();render();
+}
+
+async function drawNumbers(){
+  const set=activeSet();
+  if(!set||state.draw.active)return;
+  const pool=numberPool(set);
+  const count=Math.min(state.draw.winnersCount,pool.length);
+  if(count<1)return;
+  state.draw.active=true;state.draw.drawn=[];state.draw.showResult=false;
+  haptic(20);render();
+  for(let i=0;i<18;i++){
+    state.draw.rolling=String(pool[Math.floor(Math.random()*pool.length)]);
+    AudioFX.tick();
+    const el=$('.rolling');if(el)el.textContent=state.draw.rolling;
+    await sleep(55);
+  }
+  const picks=shuffle(pool).slice(0,count);
+  for(const v of picks){
+    state.draw.rolling=String(v);state.draw.drawn.push(v);
+    set.winners.push({value:v,rank:set.winners.length+1,wonAt:new Date().toISOString()});
+    haptic([30,30,60]);AudioFX.winner();
+    const el=$('.rolling');if(el){el.textContent=String(v);el.classList.add('pop');setTimeout(()=>el.classList.remove('pop'),400)}
+    await sleep(600);
+  }
+  state.records.unshift({id:uid(),type:'numbers',title:set.title,participantsCount:set.numbers.length,winnersCount:picks.length,winnersSummary:picks.join('، '),date:new Date().toISOString()});
+  state.draw.active=false;state.draw.showResult=true;
+  AudioFX.complete();confetti();
+  persist();render();
+}
+
+async function drawImages(){
+  if(state.draw.active||!state.imageEntries.length)return;
+  state.draw.active=true;state.draw.drawn=[];state.draw.showResult=false;
+  haptic(20);render();
+  const pool=state.imageEntries.slice();
+  for(let i=0;i<20;i++){
+    state.draw.rollImage=pool[Math.floor(Math.random()*pool.length)];
+    AudioFX.tick();
+    const el=$('.rolling-img');
+    if(el)el.innerHTML=`<img src="${state.draw.rollImage.dataUrl}" alt="">`;
+    await sleep(70);
+  }
+  const picks=shuffle(pool).slice(0,Math.min(state.draw.winnersCount,pool.length));
+  for(const p of picks){
+    state.draw.rollImage=p;state.draw.drawn.push(p);
+    state.imageWinners.unshift({id:uid(),title:p.title,dataUrl:p.dataUrl,rank:state.imageWinners.length+1,wonAt:new Date().toISOString()});
+    haptic([30,30,60]);AudioFX.winner();
+    const el=$('.rolling-img');
+    if(el){el.innerHTML=`<img src="${p.dataUrl}" alt="">`;el.classList.add('pop');setTimeout(()=>el.classList.remove('pop'),400)}
+    await sleep(650);
+  }
+  state.records.unshift({id:uid(),type:'images',title:'قرعة صور',participantsCount:pool.length,winnersCount:picks.length,winnersSummary:picks.map(p=>p.title).join('، '),date:new Date().toISOString()});
+  state.draw.active=false;state.draw.showResult=true;
+  AudioFX.complete();confetti();
+  persist();render();
+}
+
+// ============ Event handlers ============
+function bindEvents(){
+  document.addEventListener('click',async e=>{
+    const el=e.target.closest('[data-act]');
+    if(!el)return;
+    const act=el.dataset.act;
+    const id=el.dataset.id;
+    AudioFX.init();
+    haptic(5);
+    switch(act){
+      case 'noop':return;
+      case 'tab':state.tab=el.dataset.tab;state.screen='home';render();return;
+      case 'backHome':state.screen='home';state.activeId=null;state.draw={active:false,rolling:'',rollImage:null,drawn:[],showResult:false,winnersCount:1,preventRepeat:true};render();return;
+      case 'newNameList':case 'newNumberSet':case 'settings':
+        if(act==='newNumberSet')state.tmp={nsTitle:'قرعة أرقام',nsMode:'range',nsFrom:1,nsTo:100,nsPreset:100};
+        state.modal=act;renderModal();return;
+      case 'closeModal':state.modal=null;renderModal();return;
+      case 'pickLib':$('#libInput').click();return;
+      case 'pickCam':$('#camInput').click();return;
+      case 'openList':state.activeId=id;state.screen='list';state.draw={active:false,rolling:'',rollImage:null,drawn:[],showResult:false,winnersCount:1,preventRepeat:true};render();return;
+      case 'openSet':state.activeId=id;state.screen='list';state.draw={active:false,rolling:'',rollImage:null,drawn:[],showResult:false,winnersCount:1,preventRepeat:true};render();return;
+      case 'openImagesDraw':state.screen='draw';state.draw={active:false,rolling:'',rollImage:null,drawn:[],showResult:false,winnersCount:1,preventRepeat:true};render();return;
+      case 'createNameList':{
+        const v=$('#mInput')?.value.trim();if(!v)return;
+        state.nameLists.unshift({id:uid(),title:v,participants:[],winners:[],createdAt:new Date().toISOString()});
+        state.modal=null;persist();render();return;
+      }
+      case 'delNameList':{
+        if(!confirm('حذف القائمة؟'))return;
+        state.nameLists=state.nameLists.filter(l=>l.id!==id);
+        state.screen='home';state.activeId=null;persist();render();return;
+      }
+      case 'delNumberSet':{
+        if(!confirm('حذف المجموعة؟'))return;
+        state.numberSets=state.numberSets.filter(s=>s.id!==id);
+        state.screen='home';state.activeId=null;persist();render();return;
+      }
+      case 'addName':{
+        const inp=$('#nameInput');const v=inp?.value.trim();if(!v)return;
+        const l=activeList();if(!l)return;
+        l.participants.push({id:uid(),name:v});
+        inp.value='';persist();render();$('#nameInput')?.focus();return;
+      }
+      case 'delName':{
+        const l=activeList();if(!l)return;
+        l.participants=l.participants.filter(p=>p.id!==id);
+        persist();render();return;
+      }
+      case 'openBulkNames':state.modal='bulkNames';renderModal();return;
+      case 'addBulkNames':{
+        const v=$('#mInput')?.value||'';
+        const l=activeList();if(!l)return;
+        v.split('\n').map(s=>s.trim()).filter(Boolean).forEach(n=>l.participants.push({id:uid(),name:n}));
+        state.modal=null;persist();render();return;
+      }
+      case 'incWinners':{
+        const max=parseInt(el.dataset.max);state.draw.winnersCount=Math.min(max,state.draw.winnersCount+1);render();return;
+      }
+      case 'decWinners':{
+        state.draw.winnersCount=Math.max(1,state.draw.winnersCount-1);render();return;
+      }
+      case 'togglePreventRepeat':state.draw.preventRepeat=!state.draw.preventRepeat;render();return;
+      case 'drawNames':drawNames();return;
+      case 'drawNumbers':drawNumbers();return;
+      case 'drawImages':drawImages();return;
+      case 'shareCurrentDraw':{
+        const type=el.dataset.type;
+        const list=activeList(),set=activeSet();
+        const title=type==='name'?'فائزون - '+(list?.title||''):'فائزون - '+(set?.title||'');
+        const body=state.draw.drawn.map((n,i)=>(i+1)+'. '+n).join('\n');
+        shareText(title+'\n\n'+body);return;
+      }
+      case 'pdfCurrentDraw':{
+        const type=el.dataset.type;
+        const list=activeList(),set=activeSet();
+        const title=type==='name'?'فائزون - '+(list?.title||''):'فائزون - '+(set?.title||'');
+        printPDF(title,state.draw.drawn.map((n,i)=>(i+1)+'. '+n));return;
+      }
+      case 'shareAllNameWinners':{
+        const l=state.nameLists.find(x=>x.id===id);if(!l)return;
+        const body=l.winners.slice().sort((a,b)=>a.rank-b.rank).map(w=>w.rank+'. '+w.name).join('\n');
+        shareText('فائزو '+l.title+'\n\n'+body);return;
+      }
+      case 'pdfAllNameWinners':{
+        const l=state.nameLists.find(x=>x.id===id);if(!l)return;
+        printPDF('فائزون - '+l.title,l.winners.slice().sort((a,b)=>a.rank-b.rank).map(w=>w.rank+'. '+w.name+' — '+fmtDate(w.wonAt)));return;
+      }
+      case 'clearNameWinners':{
+        const l=state.nameLists.find(x=>x.id===id);if(!l)return;
+        if(!confirm('مسح قائمة الفائزين؟'))return;
+        l.winners=[];persist();render();return;
+      }
+      case 'shareAllNumberWinners':{
+        const s=state.numberSets.find(x=>x.id===id);if(!s)return;
+        const body=s.winners.slice().sort((a,b)=>a.rank-b.rank).map(w=>w.rank+'. '+w.value).join('\n');
+        shareText('فائزو '+s.title+'\n\n'+body);return;
+      }
+      case 'pdfAllNumberWinners':{
+        const s=state.numberSets.find(x=>x.id===id);if(!s)return;
+        printPDF('فائزون - '+s.title,s.winners.slice().sort((a,b)=>a.rank-b.rank).map(w=>w.rank+'. '+w.value+' — '+fmtDate(w.wonAt)));return;
+      }
+      case 'clearNumberWinners':{
+        const s=state.numberSets.find(x=>x.id===id);if(!s)return;
+        if(!confirm('مسح الفائزين؟'))return;
+        s.winners=[];persist();render();return;
+      }
+      case 'delImage':{
+        if(!confirm('حذف الصورة؟'))return;
+        state.imageEntries=state.imageEntries.filter(x=>x.id!==id);
+        persist();render();return;
+      }
+      case 'shareImage':{
+        const idx=parseInt(el.dataset.idx);
+        const img=state.draw.drawn[idx];
+        if(img)shareImage(img.dataUrl);return;
+      }
+      case 'shareRecord':{
+        const r=state.records.find(x=>x.id===id);if(!r)return;
+        shareText(r.title+'\n\n'+r.winnersSummary+'\n\n'+fmtDate(r.date));return;
+      }
+      case 'pdfRecord':{
+        const r=state.records.find(x=>x.id===id);if(!r)return;
+        printPDF(r.title,[r.winnersSummary,'',fmtDate(r.date)]);return;
+      }
+      case 'delRecord':{
+        if(!confirm('حذف السجل؟'))return;
+        state.records=state.records.filter(x=>x.id!==id);
+        persist();render();return;
+      }
+      case 'toggleTheme':state.theme=state.theme==='dark'?'light':'dark';persist();render();return;
+      case 'toggleSound':state.sound=!state.sound;persist();render();return;
+      case 'nsMode':state.tmp.nsMode=el.dataset.mode;renderModal();return;
+      case 'nsPreset':state.tmp.nsPreset=parseInt(el.dataset.n);renderModal();return;
+      case 'createNumberSet':{
+        const title=$('#mInput')?.value.trim()||'قرعة أرقام';
+        let numbers=[];
+        if(state.tmp.nsMode==='range'){
+          const from=parseInt($('#nsFrom')?.value)||1;const to=parseInt($('#nsTo')?.value)||100;
+          if(from>to){toast('النطاق غير صالح');return}
+          if(to-from>50000){toast('النطاق كبير جدًا');return}
+          for(let i=from;i<=to;i++)numbers.push(i);
+        } else if(state.tmp.nsMode==='manual'){
+          const v=$('#nsManual')?.value||'';
+          numbers=v.split(/[\s,،]+/).map(s=>parseInt(s.trim())).filter(n=>!isNaN(n));
+        } else {
+          const n=state.tmp.nsPreset||100;
+          for(let i=1;i<=n;i++)numbers.push(i);
+        }
+        if(!numbers.length){toast('لا توجد أرقام');return}
+        state.numberSets.unshift({id:uid(),title,numbers,winners:[],createdAt:new Date().toISOString()});
+        state.modal=null;persist();render();return;
+      }
+    }
+  });
+
+  // File inputs
+  $('#libInput').onchange=async e=>{
+    const files=Array.from(e.target.files||[]);
+    for(const f of files){
+      const dataUrl=await compressImage(f);
+      state.imageEntries.unshift({id:uid(),title:'صورة '+(state.imageEntries.length+1),dataUrl,createdAt:new Date().toISOString()});
+    }
+    e.target.value='';
+    if(files.length){persist();toast('✅ تمت إضافة '+files.length+' صورة');render()}
+  };
+  $('#camInput').onchange=async e=>{
+    const f=e.target.files?.[0];
+    if(f){
+      const dataUrl=await compressImage(f);
+      state.imageEntries.unshift({id:uid(),title:'صورة '+(state.imageEntries.length+1),dataUrl,createdAt:new Date().toISOString()});
+      persist();toast('✅ تمت إضافة الصورة');render();
+    }
+    e.target.value='';
+  };
+
+  // Enter key for single input
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Enter'&&e.target.id==='nameInput'){e.preventDefault();$('[data-act="addName"]')?.click()}
+    if(e.key==='Enter'&&e.target.id==='mInput'&&state.modal==='newNameList'){e.preventDefault();$('[data-act="createNameList"]')?.click()}
+  });
+}
+
+// ============ Init ============
+bindEvents();
+render();
+</script>
+</body>
+</html>
